@@ -1,10 +1,6 @@
 let placeholder = '_';
 
-/**
- * 柯里化函数
- * @param  {Function} func
- * @return {Function}
- */
+// curry :: ((a, b) -> c) -> a -> b -> c
 const curry = function (func, args) {
     let argsNum = func.length;
     args = args || [];
@@ -18,10 +14,7 @@ const curry = function (func, args) {
     }
 };
 
-/**
- * 偏函数
- * @return {Function}
- */
+// partial :: ((a, b) -> c) -> b -> c
 const partial = function () {
     let args = Array.prototype.slice.call(arguments, 0);
     const func = args.shift(); // 首个参数默认是原函数
@@ -41,10 +34,7 @@ const partial = function () {
     }
 }
 
-/**
- * 函数组合
- * @return {Function}
- */
+// compose:: (Function f, Function g) -> Function z
 const compose = function () {
     const funcs = Array.prototype.slice.call(arguments).reverse();
     return function () {
@@ -58,47 +48,27 @@ const compose = function () {
     }
 };
 
-/**
- * 获得对象属性
- * @return {Function}
- */
+// property :: String -> a -> b
 const property = curry(function (name, obj) {
     return obj[name];
 });
 
-/**
- * identity
- * @param  {Obejct} obj
- * @return {Obejct}
- */
+// identity :: a->a
 const identity = function (obj) {
     return obj;
 };
 
-/**
- * map
- * @param {Function} accumulator
- * @return {Function}
- */
+// map :: (a->b) -> [a] -> [b]
 const map = curry(function (accumulator, array) {
     return array.map(accumulator);
 });
 
-/**
- * reduce
- * @param {Function} accumulator
- * @param {Object} initVal
- * @return {Function}
- */
+// reduce :: (b->a->b) -> b -> [a] -> b
 const reduce = curry(function (accumulator, initVal, array) {
     return array.reduce(accumulator, initVal);
 });
 
-/**
- * filter
- * @param {Function} accumulator
- * @return {Function}
- */
+// filter :: (a->Bool) -> [a] -> [a]
 const filter = curry(function (accumulator, array) {
     return array.filter(accumulator);
 });
