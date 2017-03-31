@@ -73,6 +73,41 @@ const filter = curry(function (accumulator, array) {
     return array.filter(accumulator);
 });
 
+// last :: [a] -> b
+const last = function(array) {
+    return array[array.length-1];
+};
+
+// head :: [a] -> b
+const head = function(array) {
+    return array[0];
+};
+
+// split -> Regexp -> String -> [a]
+const split = curry(function(regex, s) {
+    return s.split(regex);
+});
+
+// trace -> String -> a -> a
+const trace = curry(function(tag, x){
+    console.log(tag, x);
+    return x;
+});
+
+// log -> String -> String -> a -> a
+const log = curry(function(level, tag, x) {
+    switch(level) {
+        case 'error':
+            console.error(tag, x);
+            break;
+        case 'debug':
+        default:
+            console.log(tag, x);
+            break;
+    }
+    return x;
+});
+
 //////////////// Functors //////////////////////
 // Identity
 const Identity = function (x) {
@@ -251,10 +286,15 @@ module.exports = {
     map,
     reduce,
     filter,
+    last,
+    head,
+    split,
+    trace,
+    log,
     Identity,
     fmap,
     fchain,
-    either,
+    feither,
     Maybe,
     Left,
     Right,

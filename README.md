@@ -6,7 +6,7 @@ With or without FP
 1. [柯里化（Currying）](./curry)
 2. [偏函数（Partial Function）](./partial)
 3. [组合（Composing）](./compose)
-
+4. [Functor](./functor)
 > 持续更新中。。。。。。。
 
 参考资料：[mostly adequate guide](https://drboolean.gitbooks.io/mostly-adequate-guide)
