@@ -6,7 +6,7 @@ With or without FP
 1. [柯里化（Currying）](./curry)
 2. [偏函数（Partial Function）](./partial)
 3. [组合（Composing）](./compose)
-4. [Functor](./functor)
+4. [Functors & Monads](./functor)
 
 > 持续更新中。。。。。。。
 
