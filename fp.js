@@ -83,9 +83,23 @@ const head = function(array) {
     return array[0];
 };
 
-// split -> Regexp -> String -> [a]
+// split :: Regexp -> String -> [a]
 const split = curry(function(regex, s) {
     return s.split(regex);
+});
+
+// match :: Regexp -> String -> [a]
+const match = curry(function(regex, s) {
+    return s.match(regex);
+});
+
+// nth :: Number -> [a] -> b
+const nth = curry(function(nth, arr) {
+    if(nth === -1) {
+        return arr[arr.length-1];
+    } else {
+        return arr[nth];
+    }
 });
 
 // trace -> String -> a -> a
@@ -289,6 +303,8 @@ module.exports = {
     last,
     head,
     split,
+    match,
+    nth,
     trace,
     log,
     Identity,
