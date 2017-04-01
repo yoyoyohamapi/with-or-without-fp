@@ -12,14 +12,14 @@ const students = [{
     name: '李四',
     score: 93,
     sex: 'male'
-},{
+}, {
     name: '王五',
     score: 100,
     sex: 'male'
 }];
 
 
-const isExcellent = function(student) {
+const isExcellent = function (student) {
     return student.score > 80;
 }
 

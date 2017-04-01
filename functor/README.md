@@ -83,7 +83,7 @@ const getCache = function (key) {
 };
 
 const print = F.curry(function (tag, x) {
-    return new F.IO(function () {
+    return new F.IO(() => {
         console.log(tag, x);
         return x;
     });

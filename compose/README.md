@@ -14,20 +14,20 @@ const students = [{
     name: '李四',
     score: 93,
     sex: 'male'
-},{
+}, {
     name: '王五',
     score: 100,
     sex: 'male'
 }];
 
 
-const isExcellent = function(student) {
+const isExcellent = function (student) {
     return student.score > 80;
 }
 
-const excellentStudentNames = function(students) {
+const excellentStudentNames = function (students) {
     let excellents = students.filter(isExcellent);
-    return excellents.map((excellent)=>{
+    return excellents.map((excellent) => {
         return excellent.name;
     });
 }
@@ -53,14 +53,14 @@ const students = [{
     name: '李四',
     score: 93,
     sex: 'male'
-},{
+}, {
     name: '王五',
     score: 100,
     sex: 'male'
 }];
 
 
-const isExcellent = function(student) {
+const isExcellent = function (student) {
     return student.score > 80;
 }
 
@@ -70,4 +70,5 @@ const excellentStudentNames = F.compose(
 );
 
 console.log(excellentStudentNames(students)); // => ['李四','王五']
+
 ```
