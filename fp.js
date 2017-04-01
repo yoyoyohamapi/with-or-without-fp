@@ -74,43 +74,43 @@ const filter = curry(function (accumulator, array) {
 });
 
 // last :: [a] -> b
-const last = function(array) {
-    return array[array.length-1];
+const last = function (array) {
+    return array[array.length - 1];
 };
 
 // head :: [a] -> b
-const head = function(array) {
+const head = function (array) {
     return array[0];
 };
 
 // split :: Regexp -> String -> [a]
-const split = curry(function(regex, s) {
+const split = curry(function (regex, s) {
     return s.split(regex);
 });
 
 // match :: Regexp -> String -> [a]
-const match = curry(function(regex, s) {
+const match = curry(function (regex, s) {
     return s.match(regex);
 });
 
 // nth :: Number -> [a] -> b
-const nth = curry(function(nth, arr) {
-    if(nth === -1) {
-        return arr[arr.length-1];
+const nth = curry(function (nth, arr) {
+    if (nth === -1) {
+        return arr[arr.length - 1];
     } else {
         return arr[nth];
     }
 });
 
 // trace -> String -> a -> a
-const trace = curry(function(tag, x){
+const trace = curry(function (tag, x) {
     console.log(tag, x);
     return x;
 });
 
 // log -> String -> String -> a -> a
-const log = curry(function(level, tag, x) {
-    switch(level) {
+const log = curry(function (level, tag, x) {
+    switch (level) {
         case 'error':
             console.error(tag, x);
             break;
@@ -268,6 +268,36 @@ IO.prototype.inspect = function () {
     return 'IO(' + inspect(this.unsafePerformIO) + ')';
 }
 
+const Task = function (f) {
+    this.fork = f;
+}
+
+Task.prototype.of = function (f) {
+    return new Task(f);
+}
+
+Task.prototype.map = function (f) {
+    let self = this;
+    return new Task(function (reject, resolve) {
+        return self.fork(function(error){
+            reject(error);
+        }, function (data) {
+            resolve(f(data));
+        });
+    });
+}
+
+Task.prototype.chain = function (f) {
+    let self = this;
+    return new Task(function(reject, resolve) {
+        return self.fork(function(error){
+            reject(error);
+        }, function (data) {
+            f(data).fork(reject, resolve);
+        });
+    });
+}
+
 ///// Functor Helper //////////////
 const fmap = curry(function (f, m) {
     return m.map(f);
@@ -278,7 +308,7 @@ const fchain = curry(function (f, m) {
 });
 
 const feither = curry(function (f, g, e) {
-    switch(e.constructor) {
+    switch (e.constructor) {
         case Left:
             return f(e.__value);
         case Right:
@@ -315,5 +345,6 @@ module.exports = {
     Left,
     Right,
     Either,
-    IO
+    IO,
+    Task
 };
