@@ -4,7 +4,7 @@ Without Either Functor
 ```js
 const players = require('../players');
 
-function getLastNames(players) {
+const getLastNames = players => {
     try {
         const names = players.map(player => player.name);
         const lastNames = names.map(name => name.split(' ')[1]);
@@ -25,13 +25,9 @@ With Either Functor
 const F = require('../../fp');
 const players = require('../players');
 
-const getPlayers = function (players) {
-    if (!Array.isArray(players)) {
-        return F.Left.of('players should be an array');
-    } else {
-        return F.Right.of(players);
-    }
-}
+const getPlayers = players => !Array.isArray(players) ?
+    F.Left.of('players should be an array') :
+    F.Right.of(players);
 
 const getLastNames = F.compose(
     F.feither(F.log('error', 'error:'), F.log('debug', 'players:')),
@@ -54,14 +50,13 @@ const localStorage = {
     nickname: 'softshot'
 };
 
-const getUserHostFromCache = function (key) {
+const getUserHostFromCache = (key) =>  {
     let email = localStorage[key];
     return email.match(/\w+@(\w+)\..*/)[1];
 }
 
-const print = function(tag, x) {
-    console.log(tag, x);
-}
+const print = (tag, x) => console.log(tag, x);
+
 let host = getUserHostFromCache('email');
 print('host:', host); // 'host: gmail'
 ```
@@ -76,18 +71,13 @@ const localStorage = {
     email: 'softshot37@gmail.com'
 };
 
-const getCache = function (key) {
-    return new F.IO(() => {
-        return localStorage[key];
-    });
-};
+const getCache = (key) => new F.IO(() => localStorage[key]);
 
-const print = F.curry(function (tag, x) {
-    return new F.IO(() => {
-        console.log(tag, x);
-        return x;
-    });
-});
+
+const print = F.curry((tag, x) => new F.IO(() => {
+    console.log(tag, x);
+    return x;
+}));
 
 const getUserHostFromCache = F.compose(
     F.fchain(print('host:')),
@@ -106,17 +96,11 @@ Without Task Monad
 const fs = require('fs');
 const path = require('path');
 
-const read = function (path, callback) {
-    return fs.readFile(path, 'utf8', callback);
-}
+const read = (path, callback) => fs.readFile(path, 'utf8', callback);
 
-const write = function (path, data, callback) {
-    return fs.writeFile(path, data, 'utf8', callback);
-}
+const write = (path, data, callback) => fs.writeFile(path, data, 'utf8', callback);
 
-const getTitle = function (content) {
-    return content.split('\n')[0];
-}
+const getTitle = (content) => content.split('\n')[0];
 
 const srcPath = path.join(__dirname, './file.md');
 const dstPath = path.join(__dirname, './title.md');
@@ -126,15 +110,15 @@ read(srcPath, (error, data) => {
         console.error('read error:', error);
     } else {
         const title = getTitle(data);
-        write(dstPath, title, (error) => {
-            if(error) {
+        write(dstPath, title, error => {
+            if (error) {
                 console.error('write error:', error);
             } else {
                 console.log('write:', title); // => 'write: Task Monad'
             }
         });
     }
-})
+});
 ```
 
 With Task Monad
@@ -145,29 +129,25 @@ const F = require('../../fp');
 const fs = require('fs');
 const path = require('path');
 
-const read = function (path) {
-    return new F.Task((reject, resolve) => {
-        fs.readFile(path, 'utf8', (error, data) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(data);
-            }
-        })
-    });
-}
+const read = path => new F.Task((reject, resolve) =>
+    fs.readFile(path, 'utf8', (error, data) => {
+        if (error) {
+            reject(error);
+        } else {
+            resolve(data);
+        }
+    })
+);
 
-const write = F.curry((path, data) => {
-    return new F.Task((reject, resolve) => {
-        fs.writeFile(path, data, 'utf8', (error) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(data);
-            }
-        })
-    });
-});
+const write = F.curry((path, data) => new F.Task((reject, resolve) =>
+    fs.writeFile(path, data, 'utf8', error => {
+        if (error) {
+            reject(error);
+        } else {
+            resolve(data);
+        }
+    })
+));
 
 const getTitle = F.compose(
     F.head,
@@ -177,10 +157,9 @@ const getTitle = F.compose(
 const srcPath = path.join(__dirname, './file.md');
 const dstPath = path.join(__dirname, './title.md');
 
-read(srcPath).map(getTitle).chain(write(dstPath)).fork((error) => {
-    console.error('error:', error);
-}, function (title) {
-    console.log('write:', title);
-});
+read(srcPath).map(getTitle).chain(write(dstPath)).fork(
+    error => console.error('error:', error),
+    title => console.log('write:', title)
+);
 // => 'write: Task Monad'
 ```

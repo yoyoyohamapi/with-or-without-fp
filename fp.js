@@ -1,115 +1,68 @@
 let placeholder = '_';
 
 // curry :: ((a, b) -> c) -> a -> b -> c
-const curry = function (func, args) {
-    let argsNum = func.length;
-    args = args || [];
-    return function currified() {
-        let concated = args.concat(Array.prototype.slice.call(arguments));
-        if (concated.length >= argsNum) {
-            return func.apply(this, concated);
-        } else {
-            return curry(func, concated);
-        }
-    }
-};
+const curry = (f, arr = []) => (...args) =>
+    (a => a.length >= f.length ? f(...a) : curry(f, a))([...arr, ...args])
 
 // partial :: ((a, b) -> c) -> b -> c
-const partial = function () {
-    let args = Array.prototype.slice.call(arguments, 0);
-    const func = args.shift(); // 首个参数默认是原函数
-    return function () {
+const partial = (...args) => {
+    const func = args.shift();
+    return (...a) => {
         const len = args.length;
         let j = 0;
         for (let i = 0; i < len; i++) {
-            // 替换占位符
             if (args[i] === placeholder) {
-                args[i] = arguments[j++];
+                args[i] = a[j++];
             }
         }
-        if (j < arguments.length) {
-            args = args.concat(Array.prototype.slice.call(arguments, j));
+        if (j < a.length) {
+            args = [...args, ...a];
         }
-        return func.apply(this, args);
+        return func(...args);
     }
 }
 
 // compose:: (Function f, Function g) -> Function z
-const compose = function () {
-    const funcs = Array.prototype.slice.call(arguments).reverse();
-    return function () {
-        return funcs.reduce((res, func, index) => {
-            if (index === 0) {
-                return func.apply(this, res);
-            } else {
-                return func.call(this, res);
-            }
-        }, arguments);
-    }
-};
+const compose = (...funcs) => x => funcs.reduceRight((input, func) => func(input), x);
 
 // property :: String -> a -> b
-const property = curry(function (name, obj) {
-    return obj[name];
-});
+const property = curry((prop, obj) => obj[prop]);
 
 // identity :: a->a
-const identity = function (obj) {
-    return obj;
-};
+const identity = obj => obj;
 
 // map :: (a->b) -> [a] -> [b]
-const map = curry(function (accumulator, array) {
-    return array.map(accumulator);
-});
+const map = curry((fn, f) => f.map(fn));
 
 // reduce :: (b->a->b) -> b -> [a] -> b
-const reduce = curry(function (accumulator, initVal, array) {
-    return array.reduce(accumulator, initVal);
-});
+const reduce = curry((accumulator, initVal, f) => f.reduce(accumulator, initVal));
 
 // filter :: (a->Bool) -> [a] -> [a]
-const filter = curry(function (accumulator, array) {
-    return array.filter(accumulator);
-});
+const filter = curry((fn, f) => f.filter(fn));
 
 // last :: [a] -> b
-const last = function (array) {
-    return array[array.length - 1];
-};
+const last = array => array[array.length - 1];
 
 // head :: [a] -> b
-const head = function (array) {
-    return array[0];
-};
+const head = array => array[0];
 
 // split :: Regexp -> String -> [a]
-const split = curry(function (regex, s) {
-    return s.split(regex);
-});
+const split = curry((regex, s) => s.split(regex));
 
 // match :: Regexp -> String -> [a]
-const match = curry(function (regex, s) {
-    return s.match(regex);
-});
+const match = curry((regex, s) => s.match(regex));
 
 // nth :: Number -> [a] -> b
-const nth = curry(function (nth, arr) {
-    if (nth === -1) {
-        return arr[arr.length - 1];
-    } else {
-        return arr[nth];
-    }
-});
+const nth = curry((nth, arr) => nth < 0 ? arr[arr.length + nth] : arr[nth]);
 
 // trace -> String -> a -> a
-const trace = curry(function (tag, x) {
+const trace = curry((tag, x) => {
     console.log(tag, x);
     return x;
 });
 
 // log -> String -> String -> a -> a
-const log = curry(function (level, tag, x) {
+const log = curry((level, tag, x) => {
     switch (level) {
         case 'error':
             console.error(tag, x);
@@ -135,8 +88,12 @@ Identity.prototype.map = function (f) {
 };
 
 Identity.prototype.inspect = function () {
-    return 'Identity(' + inspect(this.__value) + ')';
+    return `Identity(${inspect(this.__value)})`;
 };
+
+Identity.prototype.toString = function () {
+    return `Identity(${this.__value})`;
+}
 
 // Maybe
 const Maybe = function (v) {
@@ -168,7 +125,11 @@ Maybe.prototype.ap = function (other) {
 }
 
 Maybe.prototype.inspect = function () {
-    return 'Maybe(' + inspect(this.__value) + ')';
+    return `Maybe(${inspect(this.__value)})`;
+}
+
+Maybe.prototype.toString = function () {
+    return `Maybe(${this.__value})`;
 }
 
 // Left
@@ -198,7 +159,11 @@ Left.prototype.ap = function (other) {
 }
 
 Left.prototype.inspect = function () {
-    return 'Left(' + inspect(this.__value) + ')';
+    return `Left(${inspect(this.__value)})`;
+}
+
+Left.prototype.toString = function () {
+    return `Left(${this.__value})`;
 }
 
 // Right
@@ -227,7 +192,11 @@ Right.prototype.ap = function (other) {
 }
 
 Right.prototype.inspect = function () {
-    return 'Right(' + inspect(this.__value) + ')';
+    return `Right(${inspect(this.__value)})`;
+}
+
+Right.prototype.toString = function () {
+    return `Right(${this.__value})`;
 }
 
 // Either
@@ -265,7 +234,11 @@ IO.prototype.ap = function (other) {
 }
 
 IO.prototype.inspect = function () {
-    return 'IO(' + inspect(this.unsafePerformIO) + ')';
+    return `IO(${inspect(this.unsafePerformIO)})`;
+}
+
+IO.prototype.toString = function () {
+    return `IO(${this.unsafePerformIO})`;
 }
 
 const Task = function (f) {
@@ -279,7 +252,7 @@ Task.prototype.of = function (f) {
 Task.prototype.map = function (f) {
     let self = this;
     return new Task(function (reject, resolve) {
-        return self.fork(function(error){
+        return self.fork(function (error) {
             reject(error);
         }, function (data) {
             resolve(f(data));
@@ -289,8 +262,8 @@ Task.prototype.map = function (f) {
 
 Task.prototype.chain = function (f) {
     let self = this;
-    return new Task(function(reject, resolve) {
-        return self.fork(function(error){
+    return new Task(function (reject, resolve) {
+        return self.fork(function (error) {
             reject(error);
         }, function (data) {
             f(data).fork(reject, resolve);
@@ -299,15 +272,11 @@ Task.prototype.chain = function (f) {
 }
 
 ///// Functor Helper //////////////
-const fmap = curry(function (f, m) {
-    return m.map(f);
-});
+const fmap = curry((f, m) => m.map(f));
 
-const fchain = curry(function (f, m) {
-    return m.chain(f);
-});
+const fchain = curry((f, m) => m.chain(f));
 
-const feither = curry(function (f, g, e) {
+const feither = curry((f, g, e) => {
     switch (e.constructor) {
         case Left:
             return f(e.__value);

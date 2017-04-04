@@ -19,13 +19,11 @@ const students = [{
 }];
 
 
-const isExcellent = function (student) {
-    return student.score > 80;
-}
+const isExcellent = (student) => student.score > 80;
 
 const excellentStudentNames = F.compose(
     F.map(F.property('name')),
     F.filter(isExcellent)
 );
 
-console.log(excellentStudentNames(students)); // =>
+console.log(excellentStudentNames(students)); // => ['李四', '王五']

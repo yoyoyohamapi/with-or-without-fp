@@ -16,16 +16,9 @@ const students = [{
     sex: 'male'
 }];
 
+const isExcellent = student => student.score > 80;
 
-const isExcellent = function (student) {
-    return student.score > 80;
-}
-
-const excellentStudentNames = function (students) {
-    let excellents = students.filter(isExcellent);
-    return excellents.map((excellent) => {
-        return excellent.name;
-    });
-}
+const excellentStudentNames = students =>
+    students.filter(isExcellent).map(excellent => excellent.name);
 
 console.log(excellentStudentNames(students)); // =>

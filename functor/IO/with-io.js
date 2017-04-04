@@ -4,18 +4,13 @@ const localStorage = {
     email: 'softshot37@gmail.com'
 };
 
-const getCache = function (key) {
-    return new F.IO(() => {
-        return localStorage[key];
-    });
-};
+const getCache = (key) => new F.IO(() => localStorage[key]);
 
-const print = F.curry(function (tag, x) {
-    return new F.IO(() => {
-        console.log(tag, x);
-        return x;
-    });
-});
+
+const print = F.curry((tag, x) => new F.IO(() => {
+    console.log(tag, x);
+    return x;
+}));
 
 const getUserHostFromCache = F.compose(
     F.fchain(print('host:')),

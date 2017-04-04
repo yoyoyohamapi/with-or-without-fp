@@ -20,19 +20,12 @@ const students = [{
     sex: 'male'
 }];
 
+const isExcellent = student => student.score > 80;
 
-const isExcellent = function (student) {
-    return student.score > 80;
-}
+const excellentStudentNames = students =>
+    students.filter(isExcellent).map(excellent => excellent.name);
 
-const excellentStudentNames = function (students) {
-    let excellents = students.filter(isExcellent);
-    return excellents.map((excellent) => {
-        return excellent.name;
-    });
-}
-
-console.log(excellentStudentNames(students)); // => ['李四','王五']
+console.log(excellentStudentNames(students)); // =>
 ```
 
 With Compose
@@ -60,15 +53,12 @@ const students = [{
 }];
 
 
-const isExcellent = function (student) {
-    return student.score > 80;
-}
+const isExcellent = (student) => student.score > 80;
 
 const excellentStudentNames = F.compose(
     F.map(F.property('name')),
     F.filter(isExcellent)
 );
 
-console.log(excellentStudentNames(students)); // => ['李四','王五']
-
+console.log(excellentStudentNames(students)); // => ['李四', '王五']
 ```

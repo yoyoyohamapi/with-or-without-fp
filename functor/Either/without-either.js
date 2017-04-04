@@ -1,6 +1,6 @@
 const players = require('../players');
 
-function getLastNames(players) {
+const getLastNames = players => {
     try {
         const names = players.map(player => player.name);
         const lastNames = names.map(name => name.split(' ')[1]);

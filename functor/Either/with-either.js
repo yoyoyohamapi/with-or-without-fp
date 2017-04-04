@@ -1,13 +1,9 @@
 const F = require('../../fp');
 const players = require('../players');
 
-const getPlayers = function (players) {
-    if (!Array.isArray(players)) {
-        return F.Left.of('players should be an array');
-    } else {
-        return F.Right.of(players);
-    }
-}
+const getPlayers = players => !Array.isArray(players) ?
+    F.Left.of('players should be an array') :
+    F.Right.of(players);
 
 const getLastNames = F.compose(
     F.feither(F.log('error', 'error:'), F.log('debug', 'players:')),
