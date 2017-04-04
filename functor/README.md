@@ -163,3 +163,62 @@ read(srcPath).map(getTitle).chain(write(dstPath)).fork(
 );
 // => 'write: Task Monad'
 ```
+
+Parallel without Task Monad
+----------
+
+```js
+const fs = require('fs');
+const path = require('path');
+
+const getFileSizes = (files, callback) => {
+    const sizes = [];
+    files.forEach((file) => {
+        fs.stat(file, (err, stat) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                sizes.push(stat.size);
+                if (sizes.length === files.length) {
+                    callback(null, sizes);
+                }
+            }
+        });
+    });
+}
+
+const files = ['co.md', 'koa.md', 'promise.md'].map(filename => path.join(__dirname, filename));
+getFileSizes(files, (err, sizes) => {
+    if (err) {
+        console.error('error:', err);
+    } else {
+        console.log('sizes:', sizes);
+    }
+});
+// => sizes: [ 5383, 2709, 13939 ]
+```
+
+Parallel with Task Monad
+-------------
+
+```js
+const fs = require('fs');
+const path = require('path');
+const F = require('../../fp');
+
+const getFileSize = (file) => F.Task.of((reject, resolve) =>
+    fs.stat(file, (err, stat) => err ? reject(err) : resolve(stat.size))
+);
+
+const getFileSizes = files => {
+    const tasks = files.map(getFileSize);
+    return F.Task.all(tasks);
+};
+
+const files = ['co.md', 'koa.md', 'promise.md'].map(filename => path.join(__dirname, filename));
+getFileSizes(files).fork(
+    error => console.error('error:', error),
+    sizes => console.log('sizes:', sizes)
+);
+// => sizes: [ 5383, 2709, 13939 ]
+```

@@ -245,30 +245,36 @@ const Task = function (f) {
     this.fork = f;
 }
 
-Task.prototype.of = function (f) {
+Task.of = function (f) {
     return new Task(f);
 }
 
 Task.prototype.map = function (f) {
     let self = this;
-    return new Task(function (reject, resolve) {
-        return self.fork(function (error) {
-            reject(error);
-        }, function (data) {
-            resolve(f(data));
-        });
-    });
+    return new Task((reject, resolve) =>
+        self.fork(error => reject(error), data => resolve(data))
+    );
 }
 
 Task.prototype.chain = function (f) {
     let self = this;
-    return new Task(function (reject, resolve) {
-        return self.fork(function (error) {
-            reject(error);
-        }, function (data) {
-            f(data).fork(reject, resolve);
-        });
-    });
+    return new Task((reject, resolve) =>
+        self.fork(error => reject(error), data => f(data).fork(reject, resolve))
+    );
+}
+
+Task.all = function (tasks) {
+    const results = [];
+    return new Task((reject, resolve) =>
+        tasks.forEach((task) =>
+            task.fork(error => reject(error), data => {
+                results.push(data);
+                if (tasks.length === results.length) {
+                    resolve(results);
+                }
+            })
+        )
+    );
 }
 
 ///// Functor Helper //////////////
