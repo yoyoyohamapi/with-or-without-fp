@@ -2,14 +2,15 @@ const fs = require('fs');
 const path = require('path');
 
 const getFileSizes = (files, callback) => {
-    const sizes = [];
-    files.forEach((file) => {
+    const sizes = new Array(files.length);
+    let completed = files.length;
+    files.forEach((file, index) => {
         fs.stat(file, (err, stat) => {
             if (err) {
                 callback(err, null);
             } else {
-                sizes.push(stat.size);
-                if (sizes.length === files.length) {
+                sizes[index] = stat.size;
+                if (--completed === 0) {
                     callback(null, sizes);
                 }
             }

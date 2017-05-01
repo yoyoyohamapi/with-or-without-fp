@@ -264,12 +264,13 @@ Task.prototype.chain = function (f) {
 }
 
 Task.all = function (tasks) {
-    const results = [];
+    const results = new Array(tasks.length);
+    let completed = tasks.length;
     return new Task((reject, resolve) =>
-        tasks.forEach((task) =>
+        tasks.forEach((task, index) =>
             task.fork(error => reject(error), data => {
-                results.push(data);
-                if (tasks.length === results.length) {
+                results[index] = data;
+                if (--completed === 0) {
                     resolve(results);
                 }
             })

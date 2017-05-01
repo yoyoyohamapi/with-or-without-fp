@@ -1,5 +1,5 @@
 Without Either Functor
----------------
+----------------------
 
 ```js
 const players = require('../players');
@@ -19,7 +19,7 @@ getLastNames({}); // => error:  players should be an array
 ```
 
 With Either Functor
------------------
+-------------------
 
 ```js
 const F = require('../../fp');
@@ -42,7 +42,7 @@ getLastNames({}); // => error: players should be an array
 ```
 
 Without IO Monad
--------------
+----------------
 
 ```js
 const localStorage = {
@@ -62,7 +62,7 @@ print('host:', host); // 'host: gmail'
 ```
 
 With IO Monad
---------------
+-------------
 
 ```js
 const F = require('../../fp');
@@ -90,7 +90,7 @@ getUserHostFromCache('email').unsafePerformIO(); // => 'host: gmail'
 ```
 
 Without Task Monad
------------------------
+------------------
 
 ```js
 const fs = require('fs');
@@ -122,7 +122,7 @@ read(srcPath, (error, data) => {
 ```
 
 With Task Monad
-------------------
+---------------
 
 ```js
 const F = require('../../fp');
@@ -165,21 +165,22 @@ read(srcPath).map(getTitle).chain(write(dstPath)).fork(
 ```
 
 Parallel without Task Monad
-----------
+---------------------------
 
 ```js
 const fs = require('fs');
 const path = require('path');
 
 const getFileSizes = (files, callback) => {
-    const sizes = [];
-    files.forEach((file) => {
+    const sizes = new Array(files.length);
+    let completed = files.length;
+    files.forEach((file, index) => {
         fs.stat(file, (err, stat) => {
             if (err) {
                 callback(err, null);
             } else {
-                sizes.push(stat.size);
-                if (sizes.length === files.length) {
+                sizes[index] = stat.size;
+                if (--completed === 0) {
                     callback(null, sizes);
                 }
             }
@@ -199,7 +200,7 @@ getFileSizes(files, (err, sizes) => {
 ```
 
 Parallel with Task Monad
--------------
+------------------------
 
 ```js
 const fs = require('fs');
