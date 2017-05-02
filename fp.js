@@ -37,6 +37,11 @@ const map = curry((fn, f) => f.map(fn));
 // reduce :: (b->a->b) -> b -> [a] -> b
 const reduce = curry((accumulator, initVal, f) => f.reduce(accumulator, initVal));
 
+// lift :: AP ap => (a -> b) -> ap a -> [ap b] -> ap c
+const lift = curry((f, functor1, ...args) => args.reduce(function (pre, next) {
+    return pre.ap(next);
+}, functor1.map(f)));
+
 // filter :: (a->Bool) -> [a] -> [a]
 const filter = curry((fn, f) => f.filter(fn));
 
@@ -74,6 +79,7 @@ const log = curry((level, tag, x) => {
     }
     return x;
 });
+
 
 //////////////// Functors //////////////////////
 // Identity
@@ -254,7 +260,7 @@ Task.of = function (f) {
 Task.prototype.map = function (f) {
     let self = this;
     return new Task((reject, resolve) =>
-        self.fork(error => reject(error), data => resolve(data))
+        self.fork(error => reject(error), data => resolve(f(data)))
     );
 }
 
@@ -265,7 +271,7 @@ Task.prototype.chain = function (f) {
     );
 }
 
-Task.prototype.ap = function (task) {
+Task.prototype.ap2 = function (task) {
     const cb = this.cb === void 0 ? this.fork : this.cb;
     const tasks = this.tasks === void 0 ? [task] : this.tasks.map(identity).concat([task]);
     const results = new Array(tasks.length);
@@ -285,6 +291,44 @@ Task.prototype.ap = function (task) {
                 })
             }
         }), tasks, cb);
+}
+
+Task.prototype.ap = function (that) {
+    let forkThis = this.fork;
+    let forkThat = that.fork;
+    return new Task((reject, resolve) => {
+        let func, funcLoaded = false;
+    let val, valLoaded = false;
+    let rejected = false;
+    const guardResolve = (setter) => (x) => {
+        if (rejected) {
+            return;
+        }
+        setter(x);
+        // 保证异步处理都结束并成功后再执行回调
+        if (funcLoaded && valLoaded) {
+            return resolve(func(val));
+        } else {
+            return x;
+        }
+    }
+    const guardReject = (x) => {
+        if (!rejected) {
+            rejected = true;
+            return reject(x);
+        }
+    }
+    let thisState = forkThis(guardReject, guardResolve((x) => {
+        funcLoaded = true;
+    func = x;
+}));
+
+    let thatState = forkThat(guardReject, guardResolve((x) => {
+        valLoaded = true;
+    val = x;
+}))
+    return [thisState, thatState];
+})
 }
 
 Task.all = function (tasks) {
@@ -328,6 +372,7 @@ module.exports = {
     property,
     identity,
     map,
+    lift,
     reduce,
     filter,
     last,

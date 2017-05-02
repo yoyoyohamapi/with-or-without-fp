@@ -8,15 +8,13 @@ const getFileSize = (file) => F.Task.of((reject, resolve) =>
     fs.stat(file, (err, stat) => err ? reject(err) : resolve(stat.size))
 );
 
-const totalSize = (...sizes) => F.reduce((prev, curr) => prev + curr, 0, sizes);
+const totalSize = F.curry((size1, size2, size3) => size1 + size2 + size3);
 
-const totalTask = F.Task.of(totalSize)
-    .ap(getFileSize(files[0]))
-    .ap(getFileSize(files[1]))
-    .ap(getFileSize(files[2]));
+const totalTask = F.lift(totalSize, getFileSize(files[0]), getFileSize(files[1]), getFileSize(files[2]));
+
 
 totalTask.fork(
     error => console.error('error:', error),
     total => console.log('total:', total)
 );
-// => sizes: 22031
+// => sizes: 22497

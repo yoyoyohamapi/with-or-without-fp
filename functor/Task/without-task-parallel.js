@@ -27,4 +27,4 @@ totalSize(files, (err, total) => {
         console.log('total:', total);
     }
 });
-// => sizes: 22031
+// => sizes: 22497
