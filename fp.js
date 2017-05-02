@@ -298,37 +298,37 @@ Task.prototype.ap = function (that) {
     let forkThat = that.fork;
     return new Task((reject, resolve) => {
         let func, funcLoaded = false;
-    let val, valLoaded = false;
-    let rejected = false;
-    const guardResolve = (setter) => (x) => {
-        if (rejected) {
-            return;
+        let val, valLoaded = false;
+        let rejected = false;
+        const guardResolve = (setter) => (x) => {
+            if (rejected) {
+                return;
+            }
+            setter(x);
+            // 保证异步处理都结束并成功后再执行回调
+            if (funcLoaded && valLoaded) {
+                return resolve(func(val));
+            } else {
+                return x;
+            }
         }
-        setter(x);
-        // 保证异步处理都结束并成功后再执行回调
-        if (funcLoaded && valLoaded) {
-            return resolve(func(val));
-        } else {
-            return x;
+        const guardReject = (x) => {
+            if (!rejected) {
+                rejected = true;
+                return reject(x);
+            }
         }
-    }
-    const guardReject = (x) => {
-        if (!rejected) {
-            rejected = true;
-            return reject(x);
-        }
-    }
-    let thisState = forkThis(guardReject, guardResolve((x) => {
-        funcLoaded = true;
-    func = x;
-}));
+        let thisState = forkThis(guardReject, guardResolve((x) => {
+            funcLoaded = true;
+            func = x;
+        }));
 
-    let thatState = forkThat(guardReject, guardResolve((x) => {
-        valLoaded = true;
-    val = x;
-}))
-    return [thisState, thatState];
-})
+        let thatState = forkThat(guardReject, guardResolve((x) => {
+            valLoaded = true;
+            val = x;
+        }))
+        return [thisState, thatState];
+    });
 }
 
 Task.all = function (tasks) {

@@ -19,7 +19,10 @@ const totalSize = (files, callback) => {
     });
 }
 
-const files = ['co.md', 'koa.md', 'promise.md'].map(filename => path.join(__dirname, filename));
+const files = ['co.md', 'koa.md', 'promise.md'].map(
+    filename => path.join(__dirname, filename)
+);
+
 totalSize(files, (err, total) => {
     if (err) {
         console.error('error:', err);

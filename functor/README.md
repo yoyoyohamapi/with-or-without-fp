@@ -189,7 +189,10 @@ const totalSize = (files, callback) => {
     });
 }
 
-const files = ['co.md', 'koa.md', 'promise.md'].map(filename => path.join(__dirname, filename));
+const files = ['co.md', 'koa.md', 'promise.md'].map(
+    filename => path.join(__dirname, filename)
+);
+
 totalSize(files, (err, total) => {
     if (err) {
         console.error('error:', err);
@@ -216,8 +219,12 @@ const getFileSize = (file) => F.Task.of((reject, resolve) =>
 
 const totalSize = F.curry((size1, size2, size3) => size1 + size2 + size3);
 
-const totalTask = F.lift(totalSize, getFileSize(files[0]), getFileSize(files[1]), getFileSize(files[2]));
-
+const totalTask = F.lift(
+    totalSize,
+    getFileSize(files[0]),
+    getFileSize(files[1]),
+    getFileSize(files[2])
+);
 
 totalTask.fork(
     error => console.error('error:', error),
