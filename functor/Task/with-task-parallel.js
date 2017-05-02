@@ -19,4 +19,4 @@ totalTask.fork(
     error => console.error('error:', error),
     total => console.log('total:', total)
 );
-// => sizes: [ 5383, 2709, 13939 ]
+// => sizes: 22031
