@@ -206,6 +206,8 @@ totalSize(files, (err, total) => {
 Parallel with Task Applicative
 ------------------------------
 
+> provided by [lsa2127291](https://github.com/lsa2127291)
+
 ```js
 const fs = require('fs');
 const path = require('path');
