@@ -164,14 +164,14 @@ read(srcPath).map(getTitle).chain(write(dstPath)).fork(
 // => 'write: Task Monad'
 ```
 
-Parallel without Task Monad
----------------------------
+Parallel without Task Applicative
+---------------------------------
 
 ```js
 const fs = require('fs');
 const path = require('path');
 
-const getFileSizes = (files, callback) => {
+const totalSize = (files, callback) => {
     const sizes = new Array(files.length);
     let completed = files.length;
     files.forEach((file, index) => {
@@ -181,7 +181,8 @@ const getFileSizes = (files, callback) => {
             } else {
                 sizes[index] = stat.size;
                 if (--completed === 0) {
-                    callback(null, sizes);
+                    const total = sizes.reduce((prev, curr) => prev + curr, 0);
+                    callback(null, total);
                 }
             }
         });
@@ -189,37 +190,39 @@ const getFileSizes = (files, callback) => {
 }
 
 const files = ['co.md', 'koa.md', 'promise.md'].map(filename => path.join(__dirname, filename));
-getFileSizes(files, (err, sizes) => {
+totalSize(files, (err, total) => {
     if (err) {
         console.error('error:', err);
     } else {
-        console.log('sizes:', sizes);
+        console.log('total:', total);
     }
 });
-// => sizes: [ 5383, 2709, 13939 ]
+// => sizes: 22031
 ```
 
-Parallel with Task Monad
-------------------------
+Parallel with Task Applicative
+------------------------------
 
 ```js
 const fs = require('fs');
 const path = require('path');
 const F = require('../../fp');
 
+const files = ['co.md', 'koa.md', 'promise.md'].map(filename => path.join(__dirname, filename));
+
 const getFileSize = (file) => F.Task.of((reject, resolve) =>
     fs.stat(file, (err, stat) => err ? reject(err) : resolve(stat.size))
 );
 
-const getFileSizes = files => {
-    const tasks = files.map(getFileSize);
-    return F.Task.all(tasks);
-};
+const totalSize = (...sizes) => F.reduce((prev, curr) => prev + curr, 0, sizes);
 
-const files = ['co.md', 'koa.md', 'promise.md'].map(filename => path.join(__dirname, filename));
-getFileSizes(files).fork(
+const totalTask = F.Task.of(totalSize)
+    .ap(getFileSize(files[0]))
+    .ap(getFileSize(files[2]))
+    .ap(getFileSize(files[2]));
+totalTask.fork(
     error => console.error('error:', error),
-    sizes => console.log('sizes:', sizes)
+    total => console.log('total:', total)
 );
-// => sizes: [ 5383, 2709, 13939 ]
+// => total: 22031
 ```

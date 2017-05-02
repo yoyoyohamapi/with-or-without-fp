@@ -241,8 +241,10 @@ IO.prototype.toString = function () {
     return `IO(${this.unsafePerformIO})`;
 }
 
-const Task = function (f) {
+const Task = function (f, tasks, cb) {
     this.fork = f;
+    this.tasks = tasks;
+    this.cb = cb;
 }
 
 Task.of = function (f) {
@@ -261,6 +263,23 @@ Task.prototype.chain = function (f) {
     return new Task((reject, resolve) =>
         self.fork(error => reject(error), data => f(data).fork(reject, resolve))
     );
+}
+
+Task.prototype.ap = function (task) {
+    const cb = this.cb === void 0 ? this.fork : this.cb;
+    const tasks = this.tasks === void 0 ? [task] : this.tasks.map(identity).concat([task]);
+    const results = new Array(tasks.length);
+    let completed = tasks.length;
+    return new Task((reject, resolve) =>
+        tasks.forEach((task, index) =>
+            task.fork(error => reject(error), data => {
+                results[index] = data;
+                if (--completed === 0) {
+                    resolve(cb.apply(null, results));
+                }
+            })
+        )
+    , tasks, cb);
 }
 
 Task.all = function (tasks) {

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const getFileSizes = (files, callback) => {
+const totalSize = (files, callback) => {
     const sizes = new Array(files.length);
     let completed = files.length;
     files.forEach((file, index) => {
@@ -11,7 +11,8 @@ const getFileSizes = (files, callback) => {
             } else {
                 sizes[index] = stat.size;
                 if (--completed === 0) {
-                    callback(null, sizes);
+                    const total = sizes.reduce((prev, curr) => prev + curr, 0);
+                    callback(null, total);
                 }
             }
         });
@@ -19,11 +20,11 @@ const getFileSizes = (files, callback) => {
 }
 
 const files = ['co.md', 'koa.md', 'promise.md'].map(filename => path.join(__dirname, filename));
-getFileSizes(files, (err, sizes) => {
+totalSize(files, (err, total) => {
     if (err) {
         console.error('error:', err);
     } else {
-        console.log('sizes:', sizes);
+        console.log('total:', total);
     }
 });
-// => sizes: [ 5383, 2709, 13939 ]
+// => sizes: 22031
