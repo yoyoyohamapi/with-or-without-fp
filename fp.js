@@ -278,8 +278,7 @@ Task.prototype.ap = function (task) {
                     resolve(cb.apply(null, results));
                 }
             })
-        )
-    , tasks, cb);
+        ), tasks, cb);
 }
 
 Task.all = function (tasks) {
