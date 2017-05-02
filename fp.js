@@ -270,15 +270,21 @@ Task.prototype.ap = function (task) {
     const tasks = this.tasks === void 0 ? [task] : this.tasks.map(identity).concat([task]);
     const results = new Array(tasks.length);
     let completed = tasks.length;
+    let failed = false
     return new Task((reject, resolve) =>
-        tasks.forEach((task, index) =>
-            task.fork(error => reject(error), data => {
-                results[index] = data;
-                if (--completed === 0) {
-                    resolve(cb.apply(null, results));
-                }
-            })
-        ), tasks, cb);
+        tasks.forEach((task, index) => {
+            if (!failed) {
+                task.fork(error => {
+                    failed = true;
+                    reject(error);
+                }, data => {
+                    results[index] = data;
+                    if (--completed === 0) {
+                        resolve(cb.apply(null, results));
+                    }
+                })
+            }
+        }), tasks, cb);
 }
 
 Task.all = function (tasks) {

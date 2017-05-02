@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const F = require('../../fp');
 
-const files = ['co.md', 'koa.md', 'promise.md'].map(filename => path.join(__dirname, filename));
+const files = ['co.md', 'ko22a.md', 'promise.md'].map(filename => path.join(__dirname, filename));
 
 const getFileSize = (file) => F.Task.of((reject, resolve) =>
     fs.stat(file, (err, stat) => err ? reject(err) : resolve(stat.size))
