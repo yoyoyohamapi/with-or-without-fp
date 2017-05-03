@@ -15,6 +15,7 @@ With or without FP
 
 -	[mostly adequate guide](https://drboolean.gitbooks.io/mostly-adequate-guide)
 
-Contributor:
+Contributor
+------------
 
 -	[lsa2127291](https://github.com/lsa2127291)
