@@ -2,12 +2,22 @@ Without Curry
 ------------------
 
 ```js
-const accumulator = function (prev, current) {
-    return prev + current;
-}
+const persons = [{
+  name: '张三',
+  age: 18
+}, {
+  name: '李四',
+  age: 24
+}, {
+  name: '王五',
+  age: 33
+}];
 
-console.log([1, 2, 3, 4, 5].reduce(accumulator, 0)); // => 15
-console.log([9,14,23].reduce(accumulator, 0)); // => 46
+const names = persons.map(person => person.name);
+const ages = persons.map(person => person.age);
+
+console.log('names', names); // => ['张三', '李四', '王五']
+console.log('ages', ages); // => [18, 24, 33]
 ```
 
 With Curry
@@ -16,9 +26,25 @@ With Curry
 ```js
 const F = require('../fp');
 
-const accumulator = (prev, current) => prev + current;
-const sum = F.reduce(accumulator)(0);
+const prop = F.curry((key, obj) => obj[key]);
 
-console.log(sum([1, 2, 3, 4, 5])); // => 15
-console.log(sum([9, 14, 23])); // => 46
+const getName = prop('name');
+const getAge = prop('age');
+
+const persons = [{
+  name: '张三',
+  age: 18
+}, {
+  name: '李四',
+  age: 24
+}, {
+  name: '王五',
+  age: 33
+}];
+
+const names = persons.map(getName);
+const ages = persons.map(getAge);
+
+console.log('names', names); // => ['张三', '李四', '王五']
+console.log('ages', ages); // => [18, 24, 33]
 ```

@@ -1,6 +1,16 @@
-const accumulator = function (prev, current) {
-    return prev + current;
-}
+const persons = [{
+  name: '张三',
+  age: 18
+}, {
+  name: '李四',
+  age: 24
+}, {
+  name: '王五',
+  age: 33
+}];
 
-console.log([1, 2, 3, 4, 5].reduce(accumulator, 0)); // => 15
-console.log([9,14,23].reduce(accumulator, 0)); // => 46
+const names = persons.map(person => person.name);
+const ages = persons.map(person => person.age);
+
+console.log('names', names); // => ['张三', '李四', '王五']
+console.log('ages', ages); // => [18, 24, 33]
