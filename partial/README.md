@@ -21,9 +21,11 @@ With Partial
 ------------------
 
 ```js
-const parseInt10 = str => parseInt(str, 10);
-const parseInt16 = str => parseInt(str, 16);
-const parseInt2 = str => parseInt(str, 2)
+const F = require('../fp');
+
+const parseInt10 = F.partial(parseInt, F._, 10);
+const parseInt16 = F.partial(parseInt, F._, 16)
+const parseInt2 = F.partial(parseInt, F._, 2);
 
 console.log((parseInt10('10'))); // => 10
 console.log((parseInt16('10'))); // => 16

@@ -1,8 +1,20 @@
-let placeholder = '_';
+const _ = '@@placeholder';
 
 // curry :: ((a, b) -> c) -> a -> b -> c
-const curry = (f, arr = []) => (...args) =>
-    (a => a.length >= f.length ? f(...a) : curry(f, a))([...arr, ...args])
+const curry = (f, arr = []) => {
+  return (...args) => {
+    let j = 0;
+    // 跳过占位符
+    for (let i = 0; i < arr.length; i++) {
+       if (arr[i] === _) {
+           arr[i] = args[j++];
+       }
+    }
+    const combined = j < args.length ? [...arr, ...args.slice(j)] : [...arr];
+    const validArgs = combined.filter(arg => arg !== _);
+    return validArgs.length >= f.length ? f(...combined) : curry(f, combined);
+  };
+};
 
 // partial :: ((a, b) -> c) -> b -> c
 const partial = (...args) => {
@@ -11,7 +23,7 @@ const partial = (...args) => {
         const len = args.length;
         let j = 0;
         for (let i = 0; i < len; i++) {
-            if (args[i] === placeholder) {
+            if (args[i] === _) {
                 args[i] = a[j++];
             }
         }
@@ -365,7 +377,7 @@ inspect = function (x) {
 };
 
 module.exports = {
-    placeholder,
+    _,
     curry,
     partial,
     compose,
